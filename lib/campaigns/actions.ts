@@ -134,6 +134,7 @@ export async function sendCampaign(
         htmlContent: personalizedHtml,
         fromName: campaign.from_name,
         fromEmail: campaign.from_email,
+        campaignId: campaignId,
       })
       await supabase.from('campaign_sends').upsert({
         campaign_id: campaignId,

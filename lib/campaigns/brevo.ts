@@ -6,6 +6,7 @@ export async function sendTransactionalEmail(params: {
   htmlContent: string
   fromName: string
   fromEmail: string
+  campaignId?: string
 }): Promise<string> {
   const response = await fetch(BREVO_API_URL, {
     method: 'POST',
@@ -19,6 +20,9 @@ export async function sendTransactionalEmail(params: {
       to: [{ email: params.to.email, name: params.to.name }],
       subject: params.subject,
       htmlContent: params.htmlContent,
+      trackOpens: 1,
+      trackClicks: 1,
+      ...(params.campaignId ? { tags: [params.campaignId] } : {}),
     }),
   })
 
