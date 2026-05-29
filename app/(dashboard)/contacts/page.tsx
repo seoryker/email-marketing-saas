@@ -1,13 +1,45 @@
-export default function ContactsPage() {
+import { Suspense } from 'react'
+import { getContacts, getLists, getTags, getCustomFieldDefinitions, getTotalContactCount } from '@/lib/contacts/queries'
+import ContactsPageClient from './ContactsPageClient'
+import ContactsLoading from './loading'
+
+type Props = {
+  searchParams: Promise<{
+    page?: string
+    search?: string
+    list_id?: string
+    tag_id?: string
+    status?: string
+  }>
+}
+
+export default async function ContactsPage({ searchParams }: Props) {
+  const params = await searchParams
+  const page = Number(params.page ?? 1)
+
+  const [contactsPage, lists, tags, customFields, totalCount] = await Promise.all([
+    getContacts({
+      page,
+      search: params.search,
+      list_id: params.list_id,
+      tag_id: params.tag_id,
+      status: params.status as any,
+    }),
+    getLists(),
+    getTags(),
+    getCustomFieldDefinitions(),
+    getTotalContactCount(),
+  ])
+
   return (
-    <div className="flex flex-col items-center justify-center py-32 text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50">
-        <svg className="h-7 w-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-        </svg>
-      </div>
-      <h2 className="text-lg font-semibold text-slate-900">Contacts</h2>
-      <p className="mt-1.5 text-sm text-slate-500">Coming in the next sub-project</p>
-    </div>
+    <Suspense fallback={<ContactsLoading />}>
+      <ContactsPageClient
+        contactsPage={contactsPage}
+        lists={lists}
+        tags={tags}
+        customFields={customFields}
+        totalCount={totalCount}
+      />
+    </Suspense>
   )
 }
