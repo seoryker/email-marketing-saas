@@ -1,13 +1,38 @@
-export default function AnalyticsPage() {
+import { Suspense } from 'react'
+import { getCampaignsWithStats, getContactActivity, getLinkBreakdown, getOpensOverTime } from '@/lib/analytics/queries'
+import AnalyticsClient from './AnalyticsClient'
+
+type Props = {
+  searchParams: Promise<{ id?: string; activityPage?: string }>
+}
+
+export default async function AnalyticsPage({ searchParams }: Props) {
+  const params = await searchParams
+  const activityPage = Number(params.activityPage ?? 1)
+
+  const campaigns = await getCampaignsWithStats()
+  const selectedId = params.id ?? campaigns[0]?.id ?? null
+
+  const [activity, links, opens] = selectedId
+    ? await Promise.all([
+        getContactActivity(selectedId, activityPage),
+        getLinkBreakdown(selectedId),
+        getOpensOverTime(
+          selectedId,
+          campaigns.find(c => c.id === selectedId)?.sent_at ?? new Date().toISOString()
+        ),
+      ])
+    : [{ rows: [], total: 0 }, [], []]
+
   return (
-    <div className="flex flex-col items-center justify-center py-32 text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50">
-        <svg className="h-7 w-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 20V10M12 20V4M6 20v-6" />
-        </svg>
-      </div>
-      <h2 className="text-lg font-semibold text-slate-900">Analytics</h2>
-      <p className="mt-1.5 text-sm text-slate-500">Coming in the next sub-project</p>
-    </div>
+    <Suspense>
+      <AnalyticsClient
+        campaigns={campaigns}
+        initialSelected={selectedId}
+        initialActivity={activity}
+        initialLinks={links}
+        initialOpens={opens}
+      />
+    </Suspense>
   )
 }
