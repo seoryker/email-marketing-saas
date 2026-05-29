@@ -4,6 +4,31 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import type { ContactStatus, ImportResult } from './types'
 
+async function triggerContactAutomations(
+  supabase: any,
+  orgId: string,
+  contactId: string,
+  triggerType: string,
+  triggerConfig: Record<string, unknown> = {}
+) {
+  const { data: automations } = await supabase
+    .from('automations')
+    .select('id, trigger_config')
+    .eq('organization_id', orgId)
+    .eq('status', 'active')
+    .eq('trigger_type', triggerType)
+
+  for (const automation of automations ?? []) {
+    const configListId = automation.trigger_config?.list_id
+    if (configListId && configListId !== triggerConfig.list_id) continue
+    const configTagName = automation.trigger_config?.tag_name
+    if (configTagName && configTagName !== triggerConfig.tag_name) continue
+
+    const { enrollContact } = await import('@/lib/automations/engine')
+    await enrollContact(automation.id, contactId).catch(() => {})
+  }
+}
+
 async function getOrgId(): Promise<string> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -46,6 +71,9 @@ export async function createContact(input: {
     await supabase.from('contact_lists').insert(
       input.list_ids.map(list_id => ({ contact_id: contact.id, list_id }))
     )
+    for (const list_id of input.list_ids) {
+      await triggerContactAutomations(supabase, org_id, contact.id, 'contact_joins_list', { list_id })
+    }
   }
   if (input.tag_ids?.length) {
     await supabase.from('contact_tags').insert(

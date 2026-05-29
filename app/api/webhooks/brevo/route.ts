@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { enrollContact } from '@/lib/automations/engine'
 
 type BrevoEventType =
   | 'delivered' | 'opened' | 'clicked'
@@ -59,6 +60,29 @@ export async function POST(request: Request) {
 
   if (Object.keys(update).length) {
     await supabase.from('campaign_sends').update(update).eq('id', send.id)
+  }
+
+  // Trigger automations for behavioral events
+  if (['opened', 'clicked', 'unsubscribed'].includes(body.event)) {
+    const triggerMap: Record<string, string> = {
+      opened: 'contact_opens_email',
+      clicked: 'contact_clicks_link',
+      unsubscribed: 'contact_unsubscribes',
+    }
+    const triggerType = triggerMap[body.event]
+    if (triggerType) {
+      const { data: contact } = await supabase
+        .from('contacts').select('id, organization_id').eq('id', send.contact_id).single()
+      if (contact) {
+        const { data: automations } = await supabase
+          .from('automations').select('id')
+          .eq('organization_id', contact.organization_id)
+          .eq('status', 'active').eq('trigger_type', triggerType)
+        for (const automation of automations ?? []) {
+          await enrollContact(automation.id, contact.id).catch(() => {})
+        }
+      }
+    }
   }
 
   return NextResponse.json({ ok: true })
