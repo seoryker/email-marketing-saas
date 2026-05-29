@@ -1,13 +1,22 @@
-export default function AutomationsPage() {
+import Link from 'next/link'
+import { getAutomations } from '@/lib/automations/queries'
+import AutomationsList from '@/components/automations/AutomationsList'
+
+export default async function AutomationsPage() {
+  const automations = await getAutomations()
   return (
-    <div className="flex flex-col items-center justify-center py-32 text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50">
-        <svg className="h-7 w-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold text-slate-900">Automations</h1>
+          <p className="text-sm text-slate-500">{automations.length} automations</p>
+        </div>
+        <Link href="/automations/new"
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+          + New Automation
+        </Link>
       </div>
-      <h2 className="text-lg font-semibold text-slate-900">Automations</h2>
-      <p className="mt-1.5 text-sm text-slate-500">Coming in the next sub-project</p>
+      <AutomationsList automations={automations} />
     </div>
   )
 }
