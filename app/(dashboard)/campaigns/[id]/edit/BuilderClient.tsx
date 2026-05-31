@@ -28,7 +28,7 @@ export default function BuilderClient({ campaign, lists, recentUploads }: Props)
   const [sendModalOpen, setSendModalOpen] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [isPending, startTransition] = useTransition()
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>()
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const handleDesignChange = useCallback(() => {
     clearTimeout(autoSaveTimer.current)

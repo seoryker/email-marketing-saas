@@ -17,7 +17,7 @@ export default function PageBuilderClient({ page, recentUploads = [] }: Props) {
   const [name, setName] = useState(page.name)
   const [currentStatus, setCurrentStatus] = useState(page.status)
   const [showEmbed, setShowEmbed] = useState(false)
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>()
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const handleDesignChange = useCallback(() => {
     clearTimeout(autoSaveTimer.current)

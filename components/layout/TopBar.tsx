@@ -48,10 +48,8 @@ export default function TopBar({ profile }: { profile: Profile }) {
           <Bell className="h-4 w-4" />
         </Button>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-xs font-semibold text-white focus:outline-none">
-              {initials}
-            </button>
+          <DropdownMenuTrigger className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-xs font-semibold text-white focus:outline-none">
+            {initials}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem className="text-sm text-slate-700 font-medium">

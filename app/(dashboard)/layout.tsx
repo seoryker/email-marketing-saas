@@ -35,7 +35,7 @@ export default async function DashboardLayout({
   const profileData = {
     full_name: profile.full_name,
     organizations: {
-      name: (profile.organizations as { name: string } | null)?.name ?? '',
+      name: (profile.organizations as unknown as { name: string } | null)?.name ?? '',
     },
   }
 

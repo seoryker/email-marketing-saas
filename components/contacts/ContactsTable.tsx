@@ -5,7 +5,7 @@ import {
   useReactTable, getCoreRowModel, flexRender,
   type ColumnDef,
 } from '@tanstack/react-table'
-import { PER_PAGE } from '@/lib/contacts/queries'
+const PER_PAGE = 50
 import type { ContactWithRelations } from '@/lib/contacts/types'
 
 const STATUS_STYLES = {

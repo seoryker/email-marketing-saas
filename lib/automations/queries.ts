@@ -67,7 +67,7 @@ export async function getAutomation(id: string): Promise<{
   const canvas: CanvasState = {
     nodes: (steps ?? []).map((s: any) => ({
       id: s.id,
-      type: STEP_TO_NODE_TYPE[s.type] ?? 'action',
+      type: (STEP_TO_NODE_TYPE[s.type] ?? 'action') as 'trigger' | 'action' | 'condition' | 'end',
       position: { x: s.position_x, y: s.position_y },
       data: { stepType: s.type, config: s.config, label: STEP_LABELS[s.type] ?? s.type },
     })),
