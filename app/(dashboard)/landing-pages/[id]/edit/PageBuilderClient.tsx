@@ -6,10 +6,12 @@ import { updateLandingPage } from '@/lib/landing-pages/actions'
 import EmbedModal from '@/components/landing-pages/EmbedModal'
 import type { LandingPage } from '@/lib/landing-pages/types'
 import type { EmailBuilderRef } from '@/components/campaigns/EmailBuilder'
+import type { MediaFile } from '@/lib/media/queries'
 
 const EmailBuilder = dynamic(() => import('@/components/campaigns/EmailBuilder'), { ssr: false })
 
-export default function PageBuilderClient({ page }: { page: LandingPage }) {
+type Props = { page: LandingPage; recentUploads?: MediaFile[] }
+export default function PageBuilderClient({ page, recentUploads = [] }: Props) {
   const builderRef = useRef<EmailBuilderRef>(null)
   const [isPending, startTransition] = useTransition()
   const [name, setName] = useState(page.name)
@@ -56,7 +58,7 @@ export default function PageBuilderClient({ page }: { page: LandingPage }) {
         </div>
       </div>
       <div className="flex flex-1 min-h-0">
-        <EmailBuilder ref={builderRef} initialDesign={page.content_json ?? null} onDesignChange={handleDesignChange} />
+        <EmailBuilder ref={builderRef} initialDesign={page.content_json ?? null} onDesignChange={handleDesignChange} recentUploads={recentUploads} />
       </div>
       <div className="flex h-7 flex-shrink-0 items-center gap-6 border-t border-slate-800 bg-slate-900 px-4">
         <span className="text-[10px] text-slate-500">Submissions: <span className="text-slate-400">{page.submission_count}</span></span>

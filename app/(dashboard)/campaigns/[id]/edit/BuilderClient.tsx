@@ -9,6 +9,7 @@ import { updateCampaign } from '@/lib/campaigns/actions'
 import type { Campaign } from '@/lib/campaigns/types'
 import type { List } from '@/lib/contacts/types'
 import type { EmailBuilderRef } from '@/components/campaigns/EmailBuilder'
+import type { MediaFile } from '@/lib/media/queries'
 
 const EmailBuilder = dynamic(
   () => import('@/components/campaigns/EmailBuilder'),
@@ -18,9 +19,10 @@ const EmailBuilder = dynamic(
 type Props = {
   campaign: Campaign
   lists: List[]
+  recentUploads: MediaFile[]
 }
 
-export default function BuilderClient({ campaign, lists }: Props) {
+export default function BuilderClient({ campaign, lists, recentUploads }: Props) {
   const router = useRouter()
   const builderRef = useRef<EmailBuilderRef>(null)
   const [sendModalOpen, setSendModalOpen] = useState(false)
@@ -69,6 +71,7 @@ export default function BuilderClient({ campaign, lists }: Props) {
           ref={builderRef}
           initialDesign={campaign.content_json ?? null}
           onDesignChange={handleDesignChange}
+          recentUploads={recentUploads}
         />
       </div>
 
