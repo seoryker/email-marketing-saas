@@ -10,3 +10,5 @@ export default function VerifyOtpPage() {
     </main>
   )
 }
+
+export const dynamic = 'force-dynamic'
