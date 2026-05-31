@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, Mail, Zap, Users, BarChart2,
-  Plug, Settings
+  Plug, Settings, FileText
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { label: 'Campaigns', href: '/campaigns', icon: Mail },
   { label: 'Automations', href: '/automations', icon: Zap },
   { label: 'Contacts', href: '/contacts', icon: Users },
+  { label: 'Landing Pages', href: '/landing-pages', icon: FileText },
   { label: 'Analytics', href: '/analytics', icon: BarChart2 },
 ]
 
