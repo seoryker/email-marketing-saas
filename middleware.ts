@@ -48,6 +48,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Role-based blocking for viewers
+  if (user && isProtected) {
+    const { data: profile } = await supabase
+      .from('profiles').select('role').eq('id', user.id).single()
+
+    if (profile?.role === 'viewer') {
+      const viewerBlocked = ['/campaigns/new', '/automations/new', '/landing-pages/new']
+      const isWriteRoute = viewerBlocked.some(p => pathname.startsWith(p)) ||
+        /\/(campaigns|automations|landing-pages)\/[^/]+\/edit/.test(pathname)
+
+      if (isWriteRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        return NextResponse.redirect(url)
+      }
+    }
+  }
+
   // Redirect logged-in users away from auth pages
   const authPaths = ['/login', '/signup']
   if (user && authPaths.includes(pathname)) {
