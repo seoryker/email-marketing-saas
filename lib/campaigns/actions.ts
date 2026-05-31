@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { sendTransactionalEmail, replaceMergeTags, countTodaySends } from './brevo'
 import type { CampaignStatus, SendResult } from './types'
+import { dispatchWebhook } from '@/lib/webhooks/dispatch'
 
 const DAILY_SEND_LIMIT = 300
 
@@ -168,6 +169,10 @@ export async function sendCampaign(
   }).eq('id', campaignId)
 
   revalidatePath('/campaigns')
+  await dispatchWebhook(org_id, 'campaign.sent', {
+    campaign_id: campaignId, recipient_count: activeContacts.length,
+    sent, org_id,
+  }).catch(() => {})
   return { sent, queued: toQueue.length }
 }
 

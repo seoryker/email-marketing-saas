@@ -18,5 +18,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     }
   }
   await supabase.from('page_submissions').insert({ page_id: page.id, contact_id, data })
+  const { dispatchWebhook } = await import('@/lib/webhooks/dispatch')
+  await dispatchWebhook(page.organization_id, 'form.submitted', {
+    page_id: page.id, email: email || null, data, org_id: page.organization_id,
+  }).catch(() => {})
   return NextResponse.json({ ok: true })
 }

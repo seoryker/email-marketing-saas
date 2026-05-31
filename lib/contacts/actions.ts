@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import type { ContactStatus, ImportResult } from './types'
+import { dispatchWebhook } from '@/lib/webhooks/dispatch'
 
 async function triggerContactAutomations(
   supabase: any,
@@ -82,6 +83,10 @@ export async function createContact(input: {
   }
 
   revalidatePath('/contacts')
+  await dispatchWebhook(org_id, 'contact.created', {
+    contact_id: contact.id, email: contact.email,
+    first_name: contact.first_name, last_name: contact.last_name, org_id,
+  }).catch(() => {})
   return contact
 }
 
